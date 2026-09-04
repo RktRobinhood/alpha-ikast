@@ -71,6 +71,10 @@ This is accepted as the starting architecture under an **adopt, validate, then a
 The user experience must be web-hosted for compatibility across common device types and operating systems. Backend architecture, framework, AI runtime, and deployment topology remain deliberately undecided until the investigations establish what should be adopted.
 
 The repository survey in [Open-source project structures](../research/findings/open-source-project-structures.md) supports a compositional investigation rather than adopting one complete platform. The next useful experiment should prove a narrow AA SL learning loop across a curriculum graph, interchangeable activity engines, trustworthy evidence, and an interpretable learner state. It should not select the general application backend.
+
+## Licensing boundary during discovery
+
+The final project licenses are deferred. Research may inspect any publicly accessible source, but copying code or content requires an applicable license or permission and an immediate provenance record. Unlicensed repositories remain reference-only. Software, educational content, documentation, data, and model artifacts are tracked separately because their licenses may differ or be incompatible. See [Licensing strategy during discovery](../research/synthesis/licensing-strategy.md).
 - Alpha School's actual assessment and mastery practices
 - AI workflow runtime and portability boundary
 - Examination sessions and classroom constraints

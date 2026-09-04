@@ -16,6 +16,10 @@ The current material was supplied as prior research on 2026-09-04. It contains u
 - [Mathematics evidence and mastery models](findings/math-evidence-and-mastery-models.md) — compares OATutor, ASSISTments, STACK, CTAT, WeBWorK, BKT, and IRT; recommends a hybrid evidence architecture for AA SL.
 - [Open-source project structures](findings/open-source-project-structures.md) — compares deployable boundaries, extension seams, self-hosting, and licenses across the candidate projects without selecting a backend.
 
+## Operational research policies
+
+- [Licensing strategy during discovery](synthesis/licensing-strategy.md) — permits broad inspection while requiring provenance and permission before code or content is copied into the project.
+
 ## Verification backlog
 
 - Recover the referenced Alpha School and TimeBack pages/videos.
