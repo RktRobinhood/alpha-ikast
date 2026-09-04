@@ -2,9 +2,9 @@
 
 ## Wayfinder status
 
-The source material has been organized, but the Wayfinder map has not yet been created. The Wayfinder process first requires a precise destination; that destination determines what belongs on the map and what is out of scope.
+The canonical Wayfinder map is [Chart the route to an Alpha-style AA SL learning pilot](https://github.com/RktRobinhood/alpha-ikast/issues/1). Its GitHub child issues and native blocking relationships define the live investigation frontier.
 
-The issue tracker is GitHub. Repository and tracker setup are in progress.
+This file records durable local context only. Do not duplicate live ticket status here; use the GitHub map.
 
 ## First decision
 
