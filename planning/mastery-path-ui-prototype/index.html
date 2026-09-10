@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alpha Ikast — mastery-path UI prototype</title>
+  <style>
+    :root {
+      --ink: #17201d;
+      --muted: #60706a;
+      --paper: #f5f2e9;
+      --panel: #fffdf8;
+      --line: #d8d5ca;
+      --green: #1f6b4f;
+      --green-soft: #dcece4;
+      --amber: #e1a62f;
+      --amber-soft: #fff0c7;
+      --red: #a84536;
+      --blue: #315f86;
+      --blue-soft: #e4edf4;
+      --shadow: 0 18px 45px rgba(30, 39, 35, .11);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink); }
+    button { font: inherit; }
+    .prototype-banner { background: #17201d; color: #fff; padding: 7px 24px; font-size: 12px; letter-spacing: .06em; text-align: center; }
+    .topbar { height: 68px; display: flex; align-items: center; gap: 22px; padding: 0 28px; border-bottom: 1px solid var(--line); background: rgba(255,253,248,.92); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(12px); }
+    .brand { font-family: Georgia, serif; font-size: 21px; font-weight: 700; margin-right: auto; }
+    .brand span { color: var(--green); }
+    .school-mark { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .school-logo { width: 112px; height: 42px; object-fit: contain; object-position: left center; }
+    .school-copy { line-height: 1.05; }
+    .school-copy b { display: block; font: 700 16px Georgia, serif; }
+    .school-copy small { color: var(--muted); font-size: 10px; }
+    .focus-clock { display: flex; align-items: center; gap: 9px; padding: 7px 11px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-size: 11px; }
+    .focus-clock b { font-variant-numeric: tabular-nums; font-size: 15px; }
+    .role-toggle { display: flex; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: #eeeae0; }
+    .role-toggle button { border: 0; background: transparent; padding: 8px 13px; border-radius: 999px; color: var(--muted); cursor: pointer; }
+    .role-toggle button.active { background: white; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--green); font-weight: 750; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 30px 28px 108px; }
+    .eyebrow { color: var(--green); text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .13em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font: 700 clamp(30px, 4vw, 54px)/1.05 Georgia, serif; letter-spacing: -.035em; }
+    h2 { font: 700 26px/1.1 Georgia, serif; }
+    h3 { font-size: 15px; }
+    .muted { color: var(--muted); }
+    .tiny { font-size: 12px; color: var(--muted); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 6px 24px rgba(30,39,35,.05); }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--green-soft); color: var(--green); }
+    .pill.amber { background: var(--amber-soft); color: #765110; }
+    .pill.blue { background: var(--blue-soft); color: var(--blue); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .primary, .secondary, .quiet { border: 0; border-radius: 11px; padding: 11px 15px; font-weight: 750; cursor: pointer; }
+    .primary { background: var(--green); color: white; }
+    .secondary { border: 1px solid var(--line); background: white; color: var(--ink); }
+    .quiet { background: transparent; color: var(--green); padding-inline: 0; }
+    .progress { height: 7px; overflow: hidden; border-radius: 99px; background: #e6e3db; }
+    .progress > i { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .coach-only { display: none; }
+    body[data-role="teacher"] .student-only { display: none !important; }
+    body[data-role="teacher"] .coach-only { display: block; }
+    body[data-role="student"] .coach-only { display: none !important; }
+    .action-note { position: fixed; right: 24px; top: 88px; z-index: 20; max-width: 360px; background: #17201d; color: white; border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow); opacity: 0; transform: translateY(-8px); pointer-events: none; transition: .2s; }
+    .action-note.show { opacity: 1; transform: translateY(0); }
+
+    /* A — guided workspace */
+    .a-intro { display: grid; grid-template-columns: 1.5fr .7fr; gap: 28px; align-items: end; margin-bottom: 24px; }
+    .a-intro h1 { margin-bottom: 10px; }
+    .readiness { padding: 20px; }
+    .readiness strong { font: 700 36px Georgia, serif; }
+    .a-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, .75fr); gap: 22px; }
+    .next-card { padding: 26px; background: linear-gradient(145deg, #fffdf8, #eef5ef); }
+    .next-card header { display: flex; justify-content: space-between; gap: 20px; }
+    .next-card h2 { font-size: 32px; margin: 10px 0; }
+    .why-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
+    .why-list div { padding: 13px; background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: 12px; }
+    .why-list b { display: block; margin-bottom: 4px; font-size: 13px; }
+    .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    .activity { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; cursor: pointer; text-align: left; }
+    .activity:hover { border-color: var(--green); transform: translateY(-1px); }
+    .activity strong { display: block; margin: 8px 0 5px; }
+    .path-list, .triage-list { padding: 22px; }
+    .path-step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .path-step:last-child { border: 0; }
+    .step-icon { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 800; }
+    .step-icon.future { background: #ece9e0; color: #8c948f; }
+    .triage-row { display: grid; grid-template-columns: 38px 1fr auto; gap: 11px; padding: 13px 0; align-items: center; border-bottom: 1px solid var(--line); }
+
+    /* B — map first */
+    .b-layout { display: grid; grid-template-columns: 260px 1fr; min-height: 680px; background: #102a24; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); }
+    .b-nav { color: white; padding: 28px 20px; background: #0c211c; }
+    .b-nav h2 { font-size: 22px; }
+    .b-nav button { width: 100%; margin-top: 10px; text-align: left; border: 1px solid rgba(255,255,255,.12); color: #dbe8e3; background: rgba(255,255,255,.05); border-radius: 10px; padding: 12px; }
+    .b-main { position: relative; overflow: hidden; background: radial-gradient(circle at 35% 20%, #f9f4e6, #e8ebdf); padding: 28px; }
+    .map-head { display: flex; justify-content: space-between; gap: 20px; align-items: start; }
+    .map-head h1 { font-size: 38px; }
+    .map-canvas { position: relative; min-height: 520px; margin-top: 20px; }
+    .edge { position: absolute; height: 2px; background: #aeb9ad; transform-origin: left center; z-index: 0; }
+    .node { position: absolute; z-index: 1; width: 185px; padding: 15px; border-radius: 16px; border: 2px solid white; background: rgba(255,255,255,.94); box-shadow: 0 8px 25px rgba(35,55,44,.14); cursor: pointer; }
+    .node.current { border-color: var(--amber); box-shadow: 0 0 0 5px rgba(225,166,47,.18), 0 8px 25px rgba(35,55,44,.16); }
+    .node.done { background: #dcece4; }
+    .node.uncertain { border-style: dashed; }
+    .node small { display: block; color: var(--muted); margin-top: 5px; }
+    .node.n1 { left: 2%; top: 42%; } .node.n2 { left: 27%; top: 18%; } .node.n3 { left: 27%; top: 64%; }
+    .node.n4 { left: 54%; top: 38%; } .node.n5 { right: 1%; top: 12%; } .node.n6 { right: 1%; top: 66%; }
+    .map-detail { position: absolute; left: 2%; top: 10px; width: 225px; padding: 16px; }
+    .teacher-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 24px; }
+    .lane { min-height: 480px; border-radius: 16px; background: rgba(255,255,255,.48); padding: 14px; }
+    .learner-ticket { background: white; border-radius: 12px; margin: 12px 0; padding: 14px; box-shadow: 0 4px 13px rgba(0,0,0,.08); }
+
+    /* C — session timeline */
+    .c-frame { max-width: 1060px; margin: 0 auto; }
+    .c-frame > header { text-align: center; margin: 12px auto 32px; max-width: 670px; }
+    .c-frame h1 { font-size: 48px; }
+    .session-strip { display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 24px; }
+    .session-strip div { position: relative; text-align: center; font-size: 12px; color: var(--muted); }
+    .session-strip div:before { content: ""; display: block; height: 5px; margin-bottom: 9px; background: #d9d7cf; }
+    .session-strip div.done:before { background: var(--green); }
+    .session-strip div.now:before { background: var(--amber); }
+    .focus-sheet { display: grid; grid-template-columns: 1fr 300px; overflow: hidden; }
+    .problem { padding: 38px; min-height: 420px; }
+    .problem .math { font: 700 38px Georgia, serif; padding: 28px; margin: 26px 0; text-align: center; background: #f4f2eb; border-radius: 14px; }
+    .work-field { width: 100%; min-height: 100px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: white; resize: vertical; font: inherit; }
+    .math-toolbar { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0; }
+    .math-toolbar button { min-width: 42px; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 7px 10px; cursor: pointer; font: 600 16px Georgia, serif; }
+    .math-input { min-height: 68px; padding: 18px; border: 2px solid #aeb9ad; border-radius: 12px; background: white; font: 600 24px Georgia, serif; outline: none; }
+    .math-input:focus { border-color: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
+    .math-input:empty:before { content: "Enter a mathematical expression"; color: #9aa39e; font: 400 15px Inter, sans-serif; }
+    .upstream-slot { margin-top: 12px; padding: 10px; border: 1px dashed #9eaaa4; border-radius: 10px; background: rgba(255,255,255,.45); }
+    .evidence-rail { padding: 26px 22px; background: #eef2ec; border-left: 1px solid var(--line); }
+    .signal { margin: 15px 0; padding: 12px; border-left: 3px solid var(--green); background: white; border-radius: 0 10px 10px 0; }
+    .coach-console { display: grid; grid-template-columns: 320px 1fr; gap: 18px; }
+    .checkins { padding: 20px; }
+    .student-focus { padding: 28px; }
+    .event { display: grid; grid-template-columns: 90px 1fr; padding: 14px 0; border-top: 1px solid var(--line); }
+
+    .switcher { position: fixed; z-index: 50; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; padding: 7px; border-radius: 999px; background: #121b18; color: white; box-shadow: 0 16px 38px rgba(0,0,0,.3); }
+    .switcher button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(255,255,255,.12); color: white; cursor: pointer; font-size: 18px; }
+    .switcher-label { min-width: 220px; padding: 0 12px; text-align: center; font-size: 13px; font-weight: 750; }
+    .state-drawer { position: fixed; z-index: 40; left: 20px; bottom: 20px; width: 245px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow); font-size: 11px; }
+    .state-drawer summary { cursor: pointer; font-weight: 800; font-size: 12px; }
+    .state-drawer pre { white-space: pre-wrap; margin-bottom: 0; color: var(--muted); }
+    @media (max-width: 860px) {
+      .shell { padding-inline: 16px; }
+      .a-intro, .a-grid, .focus-sheet, .coach-console { grid-template-columns: 1fr; }
+      .why-list, .choices, .teacher-board { grid-template-columns: 1fr; }
+      .b-layout { grid-template-columns: 1fr; }
+      .b-nav { display: none; }
+      .map-canvas { transform: scale(.78); transform-origin: top left; width: 128%; }
+      .evidence-rail { border-left: 0; border-top: 1px solid var(--line); }
+      .state-drawer { display: none; }
+      .role-label { display: none; }
+      .school-copy b { font-size: 13px; }
+      .school-copy small { display: none; }
+      .focus-clock span { display: none; }
+      .topbar { padding-inline: 14px; gap: 10px; }
+    }
+  </style>
+</head>
+<body data-role="student">
+  <div class="prototype-banner">THROWAWAY PROTOTYPE · SYNTHETIC DATA · POLICIES SHOWN ARE NOT YET APPROVED</div>
+  <nav class="topbar">
+    <div class="school-mark" title="Official Ikast-Brande Gymnasium identity">
+      <img class="school-logo" src="https://www.ikast-gym.dk/Files/Templates/Designs/espresso-v4/_assets/img/IBG_logo_RGB.svg" alt="Ikast-Brande Gymnasium">
+      <div class="school-copy"><b>Alpha Ikast</b><small>Learning-orchestration prototype</small></div>
+    </div>
+    <div class="focus-clock student-only"><span>25-minute focus block</span><b>21:42</b></div>
+    <span class="tiny role-label">View this session as</span>
+    <div class="role-toggle" aria-label="Choose role">
+      <button class="active" data-role="student">Student</button>
+      <button data-role="teacher">Teacher</button>
+    </div>
+    <div class="avatar">AM</div>
+  </nav>
+  <main class="shell">
+    <section id="variant-a" class="view"></section>
+    <section id="variant-b" class="view"></section>
+    <section id="variant-c" class="view"></section>
+  </main>
+  <div class="action-note" id="action-note"></div>
+  <details class="state-drawer">
+    <summary>Prototype state</summary>
+    <pre id="state-output"></pre>
+  </details>
+  <div class="switcher" aria-label="Prototype variant switcher">
+    <button id="previous" aria-label="Previous variant">←</button>
+    <div class="switcher-label" id="variant-label"></div>
+    <button id="next" aria-label="Next variant">→</button>
+  </div>
+
+  <script>
+    // Three variants of one AA SL session, switchable via ?variant=, on a throwaway prototype route.
+    const variants = {
+      A: { name: "Guided workspace", render: renderA },
+      B: { name: "Mastery map", render: renderB },
+      C: { name: "Session timeline", render: renderC }
+    };
+    const state = {
+      role: "student",
+      variant: "A",
+      learner: "Alex M. (synthetic)",
+      learningHorizon: "Quadratic equations",
+      selectedActivity: "Factor-first guided practice",
+      sessionStage: "Choose work",
+      learnerState: "Developing · confidence medium",
+      assessmentReadiness: "Illustrative: 62%",
+      teacherSteering: "Unit assessment priority · 12 days",
+      intervention: "None requested"
+    };
+    const variantKeys = Object.keys(variants);
+
+    function templateStudentIntro() {
+      return `<div class="eyebrow">Tuesday · structured use time</div><h1>Good morning, Alex.<br>Your next useful step is ready.</h1><p class="muted">You are working toward quadratic equations. The recommendation uses your recent independent probes, the current learning horizon, and the upcoming assessment scope.</p>`;
+    }
+
+    function renderA() {
+      document.querySelector('#variant-a').innerHTML = `
+        <div class="student-only">
+          <div class="a-intro">
+            <div>${templateStudentIntro()}</div>
+            <div class="card readiness"><span class="eyebrow">Assessment readiness</span><div><strong>62%</strong> <span class="pill amber">12 days</span></div><div class="progress"><i style="width:62%"></i></div><p class="tiny" style="margin:10px 0 0">Separate from durable learner state</p></div>
+          </div>
+          <div class="a-grid">
+            <div class="card next-card">
+              <header><div><span class="pill"><span class="dot"></span> Recommended now</span><h2>Build factor fluency, then show it independently</h2></div><div class="step-icon">1</div></header>
+              <p class="muted">Choose either form of guided practice. Both prepare you for the same short independent probe.</p>
+              <div class="why-list"><div><b>Evidence</b><span class="tiny">2/4 factorable equations solved independently</span></div><div><b>Prerequisite</b><span class="tiny">Expanding brackets looks secure</span></div><div><b>Teacher steering</b><span class="tiny">Quadratics assessment scope prioritized</span></div></div>
+              <div class="choices">
+                <button class="activity" data-action="choose-factor"><span class="pill blue">8–10 min</span><strong>Factor-first guided practice</strong><span class="tiny">Hints available · worked examples</span></button>
+                <button class="activity" data-action="choose-visual"><span class="pill blue">8–10 min</span><strong>Roots on a graph</strong><span class="tiny">Interactive · visual explanation</span></button>
+              </div>
+              <button class="primary" style="margin-top:18px" data-action="start">Start selected activity →</button>
+              <button class="quiet" data-action="why">Why not the quadratic formula?</button>
+            </div>
+            <aside class="card path-list"><span class="eyebrow">Your visible path</span><h2 style="margin-top:8px">From here to ready</h2>
+              <div class="path-step"><div class="step-icon">✓</div><div><b>Expand brackets</b><div class="tiny">Secure · 4 varied probes</div></div></div>
+              <div class="path-step"><div class="step-icon">→</div><div><b>Factorable equations</b><div class="tiny">Developing · working now</div></div></div>
+              <div class="path-step"><div class="step-icon future">3</div><div><b>Discriminant & formula</b><div class="tiny">Next after independent evidence</div></div></div>
+              <div class="path-step"><div class="step-icon future">4</div><div><b>Graph/root interpretation</b><div class="tiny">Assessment scope</div></div></div>
+            </aside>
+          </div>
+        </div>
+        <div class="coach-only">
+          <div class="a-intro"><div><div class="eyebrow">Teacher coaching view</div><h1>Three useful check-ins.<br>The rest can keep moving.</h1><p class="muted">Signals are prioritized for action, not presented as an approval queue.</p></div><div class="card readiness"><span class="eyebrow">Class pulse</span><div><strong>18</strong> <span class="tiny">working independently</span></div><p class="tiny">3 check-ins · 2 recognition moments</p></div></div>
+          <div class="a-grid"><div class="card triage-list"><div style="display:flex;justify-content:space-between"><div><span class="eyebrow">Check-in triage</span><h2 style="margin-top:8px">Who could use you now?</h2></div><span class="pill amber">3 actions</span></div>
+            <div class="triage-row"><div class="avatar" style="background:#a84536">JN</div><div><b>Jamie N. · prerequisite loop</b><div class="tiny">Repeated sign errors after two guided attempts</div></div><button class="secondary" data-action="coach-jamie">Check in</button></div>
+            <div class="triage-row"><div class="avatar" style="background:#315f86">SK</div><div><b>Sam K. · confidence is low</b><div class="tiny">Correct evidence, but only one item and one form</div></div><button class="secondary" data-action="coach-sam">Review</button></div>
+            <div class="triage-row"><div class="avatar">AM</div><div><b>Alex M. · choice stalled</b><div class="tiny">Two suitable activities open for 4 minutes</div></div><button class="secondary" data-action="coach-alex">Nudge</button></div>
+          </div><aside class="card path-list"><span class="eyebrow">Teacher steering</span><h2 style="margin-top:8px">Quadratics unit</h2><p class="muted">Assessment scope is prioritized for 12 days. Routine routes continue automatically.</p><div class="progress"><i style="width:68%"></i></div><p class="tiny">12 of 18 learners have evidence across the current scope</p><button class="secondary" data-action="review-scope">Review scope</button></aside></div>
+        </div>`;
+    }
+
+    function renderB() {
+      document.querySelector('#variant-b').innerHTML = `
+        <div class="b-layout student-only"><aside class="b-nav"><h2>Your AA SL map</h2><p class="tiny" style="color:#a9bcb5">The map explains where you are, while the route can change with new evidence.</p><button>⌂ Current horizon</button><button>◎ Upcoming assessment</button><button>◇ Evidence history</button><button>↗ Ask for a check-in</button><div style="margin-top:90px"><span class="pill amber">12 days</span><p class="tiny" style="color:#a9bcb5;margin-top:10px">Quadratics assessment</p></div></aside><div class="b-main"><div class="map-head"><div><div class="eyebrow">Mastery path · quadratics</div><h1>A map, not a fixed course.</h1></div><button class="secondary" data-action="explain-map">How this route changes</button></div><div class="map-canvas">
+          <div class="edge" style="left:15%;top:48%;width:220px;transform:rotate(-24deg)"></div><div class="edge" style="left:15%;top:50%;width:220px;transform:rotate(22deg)"></div><div class="edge" style="left:40%;top:28%;width:205px;transform:rotate(23deg)"></div><div class="edge" style="left:41%;top:70%;width:180px;transform:rotate(-25deg)"></div><div class="edge" style="left:65%;top:42%;width:210px;transform:rotate(-22deg)"></div><div class="edge" style="left:65%;top:48%;width:210px;transform:rotate(24deg)"></div>
+          <button class="node done n1" data-action="node-expand"><b>Expand brackets</b><small>Secure · confidence high</small></button><button class="node done n2" data-action="node-zero"><b>Zero-product property</b><small>Secure · confidence medium</small></button><button class="node uncertain n3" data-action="node-signs"><b>Integer signs</b><small>Uncertain · sparse evidence</small></button><button class="node current n4" data-action="node-factor"><span class="pill amber">Work here</span><b style="display:block;margin-top:8px">Factorable equations</b><small>Developing · two activity choices</small></button><button class="node n5" data-action="node-formula"><b>Quadratic formula</b><small>Available after probe</small></button><button class="node n6" data-action="node-graphs"><b>Graph & roots</b><small>Assessment scope</small></button>
+          <div class="card map-detail"><span class="eyebrow">Selected node</span><h3 style="margin:8px 0">Factorable equations</h3><p class="tiny">Two recent independent attempts show partial success. Choose guided practice, then take a short independent probe.</p><button class="primary" data-action="start-map">Choose activity</button></div>
+        </div></div></div>
+        <div class="b-layout coach-only"><aside class="b-nav"><h2>Class map</h2><p class="tiny" style="color:#a9bcb5">Tuesday · 21 learners</p><button>▤ Check-in triage · 3</button><button>◉ Quadratics horizon</button><button>◇ Assessment scope</button><button>↗ Recognition · 2</button></aside><div class="b-main"><div class="map-head"><div><div class="eyebrow">Teacher coaching board</div><h1>Coach the exceptions,<br>see the movement.</h1></div><span class="pill">18 moving without approval</span></div><div class="teacher-board"><div class="lane"><b>Needs a check-in · 3</b><div class="learner-ticket"><span class="pill amber">Prerequisite loop</span><h3 style="margin:10px 0 5px">Jamie N.</h3><p class="tiny">Sign errors persist after guided retries.</p><button class="quiet" data-action="open-jamie">Open evidence →</button></div><div class="learner-ticket"><h3>Sam K.</h3><p class="tiny">Estimate uncertain: evidence lacks variety.</p></div></div><div class="lane"><b>Working now · 16</b><div class="learner-ticket"><h3>Alex M.</h3><p class="tiny">Choosing factor practice · on current horizon.</p></div><div class="learner-ticket"><h3>Taylor R.</h3><p class="tiny">Independent probe · no support active.</p></div><div class="learner-ticket"><h3>+ 14 learners</h3><p class="tiny">Routine routing continues.</p></div></div><div class="lane"><b>Ready for recognition · 2</b><div class="learner-ticket"><span class="pill">New evidence</span><h3 style="margin:10px 0 5px">Morgan L.</h3><p class="tiny">Triangulated success across three item forms.</p><button class="quiet" data-action="recognize">Send recognition →</button></div></div></div></div></div>`;
+    }
+
+    function renderC() {
+      document.querySelector('#variant-c').innerHTML = `
+        <div class="c-frame student-only"><header><div class="eyebrow">Focus block 1 of 1 · 25 minutes + movement break</div><h1>One step at a time.</h1><p class="muted">Your map stays one tap away. During the focus block, this view keeps attention on the current mathematical move and the evidence it creates.</p></header><div class="session-strip"><div class="done">Orient · done</div><div class="now">Guided practice · now</div><div>Independent probe</div><div>Reflect & break</div></div><div class="card focus-sheet"><div class="problem"><span class="pill blue">Guided practice · hints available</span><h2 style="margin-top:18px">Make the product equal zero</h2><p class="muted">Factor the expression, then use the zero-product property.</p><div class="math">x² + 5x + 6 = 0</div><label class="tiny" for="working">Enter the next mathematical step</label><div class="math-toolbar" aria-label="Math entry shortcuts"><button data-math="x²">x²</button><button data-math="√()">√</button><button data-math="()/()">a⁄b</button><button data-math="()">( )</button><button data-math="±">±</button></div><div id="working" class="math-input" role="textbox" contenteditable="true" inputmode="text" aria-label="Enter the next mathematical step"></div><div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="primary" data-action="check-step">Check answer · deterministic</button><button class="secondary" data-action="hint">Use an approved hint</button></div><p class="tiny" style="margin-top:10px">Prototype boundary: no AI judges this algebra step. Trial an upstream symbolic checker and structured math field first.</p></div><aside class="evidence-rail"><span class="eyebrow">Why this session</span><div class="signal"><b>Current need</b><p class="tiny">Factoring is the next prerequisite for the assessment scope.</p></div><div class="signal"><b>What counts now</b><p class="tiny">Guided work helps learning. A later independent probe supplies stronger mastery evidence.</p></div><div class="signal"><b>Your control</b><p class="tiny">After the probe, choose graph practice or quadratic-formula work.</p></div><div class="upstream-slot"><b class="tiny">UPSTREAM COMPONENT SLOT</b><p class="tiny" style="margin:5px 0 0">Evaluate Numbas expression input and MathLive’s accessible virtual keyboard; do not invent a new editor.</p></div><button class="quiet" data-action="request-coach">Ask teacher for a check-in</button></aside></div></div>
+        <div class="c-frame coach-only"><header><div class="eyebrow">Coaching mode · live session</div><h1>See the moment,<br>not just the score.</h1><p class="muted">A focused timeline shows why the signal appeared and what the learner has already tried.</p></header><div class="coach-console"><aside class="card checkins"><span class="eyebrow">Check-in triage</span><h2 style="margin-top:8px">3 learners</h2><button class="activity" style="width:100%" data-action="focus-jamie"><span class="pill amber">Suggested first</span><strong>Jamie N.</strong><span class="tiny">Repeated sign errors · 6 min</span></button><button class="activity" style="width:100%;margin-top:10px" data-action="focus-sam"><strong>Sam K.</strong><span class="tiny">Sparse evidence · review</span></button><button class="activity" style="width:100%;margin-top:10px" data-action="focus-alex"><strong>Alex M.</strong><span class="tiny">Choice stalled · 4 min</span></button></aside><div class="card student-focus"><div style="display:flex;justify-content:space-between"><div><span class="eyebrow">Jamie’s learning moment</span><h2 style="margin-top:8px">A sign pattern is blocking progress</h2></div><span class="pill amber">Coach now</span></div><div class="event"><b class="tiny">09:18</b><div><b>Independent probe</b><p class="tiny">Expanded (x − 3)(x + 2) with a sign error.</p></div></div><div class="event"><b class="tiny">09:22</b><div><b>Guided retry</b><p class="tiny">Used one hint; corrected the middle term.</p></div></div><div class="event"><b class="tiny">09:26</b><div><b>Second attempt</b><p class="tiny">Same sign error reappeared in a new item.</p></div></div><div style="display:flex;gap:10px"><button class="primary" data-action="begin-checkin">Begin check-in</button><button class="secondary" data-action="pause-route">Pause current route</button></div><p class="tiny" style="margin-top:14px">You can steer the next activity. The learner-state estimate is changed only by recorded evidence.</p></div></div></div>`;
+    }
+
+    function showNote(message) {
+      const note = document.querySelector('#action-note');
+      note.textContent = message;
+      note.classList.add('show');
+      clearTimeout(showNote.timer);
+      showNote.timer = setTimeout(() => note.classList.remove('show'), 2600);
+    }
+
+    function handleAction(action) {
+      const messages = {
+        'choose-factor': ['selectedActivity', 'Factor-first guided practice', 'Selected factor-first practice. Both choices were evidence-compatible.'],
+        'choose-visual': ['selectedActivity', 'Roots on a graph', 'Selected the visual graph activity. The learning goal remains unchanged.'],
+        start: ['sessionStage', 'Guided practice', 'Activity started in memory; no real learning record was written.'],
+        'start-map': ['sessionStage', 'Choose work', 'The map would open two suitable activity choices.'],
+        'check-step': ['sessionStage', 'Guided practice · deterministic check requested', 'This prototype assumes a local symbolic checker, not live AI assessment. Capacity and latency still require a trial.'],
+        hint: ['sessionStage', 'Guided practice · hint used', 'Hint use is visible and does not count as independent mastery evidence.'],
+        'request-coach': ['intervention', 'Student requested check-in', 'A student-requested check-in was added to the teacher’s triage.'],
+        'begin-checkin': ['intervention', 'Teacher coaching Jamie', 'Coaching begins without changing Jamie’s learner-state estimate.'],
+        'pause-route': ['teacherSteering', 'Jamie’s current route paused', 'Teacher steering paused the route; this does not edit the mastery estimate.'],
+        recognize: ['intervention', 'Recognition sent to Morgan', 'Recognition recorded as teacher coaching, not mastery evidence.']
+      };
+      if (messages[action]) {
+        const [key, value, message] = messages[action]; state[key] = value; showNote(message);
+      } else {
+        showNote('Prototype action: this would open supporting evidence or coaching detail.');
+      }
+      updateState();
+    }
+
+    function setRole(role) {
+      state.role = role;
+      document.body.dataset.role = role;
+      document.querySelectorAll('[data-role]').forEach(button => button.classList.toggle('active', button.dataset.role === role));
+      updateState();
+    }
+
+    function setVariant(key, replace = true) {
+      key = variants[key] ? key : 'A';
+      state.variant = key;
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+      document.querySelector(`#variant-${key.toLowerCase()}`).classList.add('active');
+      document.querySelector('#variant-label').textContent = `${key} — ${variants[key].name}`;
+      if (replace) {
+        const url = new URL(location.href); url.searchParams.set('variant', key); history.replaceState({}, '', url);
+      }
+      updateState();
+    }
+
+    function cycle(direction) {
+      const index = variantKeys.indexOf(state.variant);
+      setVariant(variantKeys[(index + direction + variantKeys.length) % variantKeys.length]);
+    }
+
+    function updateState() { document.querySelector('#state-output').textContent = JSON.stringify(state, null, 2); }
+
+    Object.values(variants).forEach(item => item.render());
+    document.addEventListener('click', event => {
+      const roleButton = event.target.closest('[data-role]');
+      if (roleButton) setRole(roleButton.dataset.role);
+      const actionButton = event.target.closest('[data-action]');
+      if (actionButton) handleAction(actionButton.dataset.action);
+      const mathButton = event.target.closest('[data-math]');
+      if (mathButton) {
+        const field = document.querySelector('#working');
+        field.textContent += mathButton.dataset.math;
+        state.mathEntry = field.textContent;
+        updateState();
+        field.focus();
+      }
+    });
+    document.querySelector('#previous').addEventListener('click', () => cycle(-1));
+    document.querySelector('#next').addEventListener('click', () => cycle(1));
+    document.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      if (event.target.matches('input, textarea, [contenteditable]')) return;
+      cycle(event.key === 'ArrowRight' ? 1 : -1);
+    });
+    setVariant(new URLSearchParams(location.search).get('variant') || 'A', false);
+  </script>
+</body>
+</html>
